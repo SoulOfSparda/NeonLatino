@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonLatino — Streaming de Películas, Series y Anime</title>
+  <meta name="description" content="NeonLatino: Tu plataforma de streaming retro-futurista. Películas, series y anime en un solo lugar. Estética Blade Runner.">
+  <meta name="theme-color" content="#06060c">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- Atmospheric layers -->
+  <canvas id="rain-canvas" aria-hidden="true"></canvas>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <a href="/" class="navbar__logo">
+      <img src="assets/logo.png" alt="NeonLatino" id="nav-logo">
+    </a>
+
+    <div class="navbar__nav" id="nav-links">
+      <a href="/" class="navbar__link navbar__link--active" data-section="home">Inicio</a>
+      <a href="#peliculas" class="navbar__link" data-section="movies">Películas</a>
+      <a href="#series" class="navbar__link" data-section="series">Series</a>
+      <a href="#anime" class="navbar__link" data-section="anime">Anime</a>
+    </div>
+
+    <div class="navbar__search">
+      <span class="navbar__search-icon">⌕</span>
+      <input type="text" class="navbar__search-input" placeholder="Buscar título..." id="search-input" autocomplete="off">
+    </div>
+
+    <button class="navbar__hamburger" id="hamburger-btn" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero-section">
+    <div class="hero__backdrop" id="hero-backdrop" style="background-image: url('assets/hero-backdrop.png')"></div>
+    <div class="hero__content">
+      <span class="hero__badge" id="hero-badge">🔥 TENDENCIA #1</span>
+      <h1 class="hero__title" id="hero-title">BLADE RUNNER 2049</h1>
+      <div class="hero__meta">
+        <span class="hero__meta-item">2017</span>
+        <span class="hero__meta-item hero__meta-item--rating">★ 8.0</span>
+        <span class="hero__meta-item">Sci-Fi</span>
+        <span class="hero__meta-item">2h 44min</span>
+      </div>
+      <p class="hero__synopsis" id="hero-synopsis">
+        Un joven oficial de LAPD descubre un secreto enterrado durante mucho tiempo que podría sumergir a la sociedad en el caos, lo que lo lleva a buscar a Rick Deckard, un ex blade runner desaparecido hace 30 años.
+      </p>
+      <div class="hero__actions">
+        <button class="btn btn--primary" id="hero-play-btn">▶ REPRODUCIR</button>
+        <button class="btn btn--ghost" id="hero-info-btn">+ INFO</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending -->
+  <section class="content-section" id="trending">
+    <div class="section-header">
+      <div class="section-header__accent"></div>
+      <h2 class="section-header__title">Tendencias</h2>
+      <div class="section-header__line"></div>
+      <a href="#" class="section-header__more">VER TODO →</a>
+    </div>
+    <div class="scroll-row reveal reveal--stagger" id="trending-row">
+      <!-- Dynamic content -->
+    </div>
+  </section>
+
+  <!-- Películas -->
+  <section class="content-section" id="peliculas">
+    <div class="section-header">
+      <div class="section-header__accent" style="background: var(--neon-magenta); box-shadow: 0 0 8px rgba(var(--neon-magenta-rgb), 0.5);"></div>
+      <h2 class="section-header__title">Películas</h2>
+      <div class="section-header__line" style="background: linear-gradient(to right, rgba(var(--neon-magenta-rgb), 0.2), transparent);"></div>
+      <a href="#" class="section-header__more">VER TODO →</a>
+    </div>
+    <div class="scroll-row reveal reveal--stagger" id="movies-row">
+      <!-- Dynamic content -->
+    </div>
+  </section>
+
+  <!-- Series -->
+  <section class="content-section" id="series">
+    <div class="section-header">
+      <div class="section-header__accent" style="background: var(--neon-purple); box-shadow: 0 0 8px rgba(var(--neon-purple-rgb), 0.5);"></div>
+      <h2 class="section-header__title">Series</h2>
+      <div class="section-header__line" style="background: linear-gradient(to right, rgba(var(--neon-purple-rgb), 0.2), transparent);"></div>
+      <a href="#" class="section-header__more">VER TODO →</a>
+    </div>
+    <div class="scroll-row reveal reveal--stagger" id="series-row">
+      <!-- Dynamic content -->
+    </div>
+  </section>
+
+  <!-- Anime -->
+  <section class="content-section" id="anime">
+    <div class="section-header">
+      <div class="section-header__accent" style="background: var(--neon-amber); box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);"></div>
+      <h2 class="section-header__title">Anime</h2>
+      <div class="section-header__line" style="background: linear-gradient(to right, rgba(255, 170, 0, 0.2), transparent);"></div>
+      <a href="#" class="section-header__more">VER TODO →</a>
+    </div>
+    <div class="scroll-row reveal reveal--stagger" id="anime-row">
+      <!-- Dynamic content -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <img src="assets/logo.png" alt="NeonLatino" class="footer__logo">
+      <p class="footer__text">© 2026 NEONLATINO — TODOS LOS DERECHOS RESERVADOS</p>
+      <div class="footer__links">
+        <a href="#" class="footer__link">Términos</a>
+        <a href="#" class="footer__link">Privacidad</a>
+        <a href="#" class="footer__link">Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
