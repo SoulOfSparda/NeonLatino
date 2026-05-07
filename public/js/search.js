@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function executeSearch() {
     const query = input.value.trim();
     if (query) {
-      window.location.href = `catalog.html?q=${encodeURIComponent(query)}`;
+      window.location.href = `catalogo.html?q=${encodeURIComponent(query)}`;
     }
   }
 

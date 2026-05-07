@@ -12,7 +12,11 @@ const NeonApp = (() => {
     const posterPath = item.poster || item.poster_path; // Support Vimeus or TMDB format
     const posterURL = posterPath ? `${IMG}/w500${posterPath}` : '';
     const title = item.title || item.name || 'Sin título';
-    const type = typeOverride || item.content_type || item.media_type || 'movie';
+    let type = typeOverride || item.content_type || item.media_type || 'movie';
+    if (type === 'tv') {
+      const isAnime = item.genre_ids && item.genre_ids.includes(16) && item.origin_country && item.origin_country.includes('JP');
+      type = isAnime ? 'anime' : 'series';
+    }
     const hue = type === 'movie' ? 190 : type === 'series' ? 300 : type === 'anime' ? 40 : 190;
     
     // Extracción de datos para TMDB o Vimeus
@@ -57,7 +61,7 @@ const NeonApp = (() => {
       card.addEventListener('click', () => {
         const id = card.dataset.id;
         const cType = card.dataset.type;
-        window.location.href = `watch.html?type=${cType}&id=${id}`;
+        window.location.href = `ver.html?type=${cType}&id=${id}`;
       });
     });
 
@@ -92,15 +96,23 @@ const NeonApp = (() => {
     
     if (playBtn) {
       playBtn.onclick = () => {
-        const type = featured.media_type || featured.content_type || 'movie';
-        window.location.href = `watch.html?type=${type}&id=${featured.id}`;
+        let type = featured.media_type || featured.content_type || 'movie';
+        if (type === 'tv') {
+          const isAnime = featured.genre_ids && featured.genre_ids.includes(16) && featured.origin_country && featured.origin_country.includes('JP');
+          type = isAnime ? 'anime' : 'series';
+        }
+        window.location.href = `ver.html?type=${type}&id=${featured.id}`;
       };
     }
     
     if (infoBtn) {
       infoBtn.onclick = () => {
-        const type = featured.media_type || featured.content_type || 'movie';
-        window.location.href = `watch.html?type=${type}&id=${featured.id}`;
+        let type = featured.media_type || featured.content_type || 'movie';
+        if (type === 'tv') {
+          const isAnime = featured.genre_ids && featured.genre_ids.includes(16) && featured.origin_country && featured.origin_country.includes('JP');
+          type = isAnime ? 'anime' : 'series';
+        }
+        window.location.href = `ver.html?type=${type}&id=${featured.id}`;
       };
     }
   }

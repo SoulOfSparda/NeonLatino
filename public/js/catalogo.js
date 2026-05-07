@@ -100,8 +100,11 @@ const CatalogApp = (() => {
           const items = dataResponse.results;
           
           gridEl.innerHTML = items.map(item => {
-            const typeMap = { movie: 'movie', tv: 'series' };
-            const type = typeMap[item.media_type] || 'movie';
+            let type = 'movie';
+            if (item.media_type === 'tv') {
+              const isAnime = item.genre_ids && item.genre_ids.includes(16) && item.origin_country && item.origin_country.includes('JP');
+              type = isAnime ? 'anime' : 'series';
+            }
             return createCard(item, type);
           }).join('');
 
@@ -109,7 +112,7 @@ const CatalogApp = (() => {
             card.addEventListener('click', () => {
               const id = card.dataset.id;
               const cType = card.dataset.type;
-              window.location.href = `watch.html?type=${cType}&id=${id}`;
+              window.location.href = `ver.html?type=${cType}&id=${id}`;
             });
           });
 
@@ -142,7 +145,7 @@ const CatalogApp = (() => {
             card.addEventListener('click', () => {
               const id = card.dataset.id;
               const cType = card.dataset.type;
-              window.location.href = `watch.html?type=${cType}&id=${id}`;
+              window.location.href = `ver.html?type=${cType}&id=${id}`;
             });
           });
 
@@ -163,14 +166,14 @@ const CatalogApp = (() => {
       btnPrev.onclick = () => {
         if (currentPage > 1) {
           const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage - 1}` : `type=${currentType}&page=${currentPage - 1}`;
-          window.location.href = `catalog.html?${params}`;
+          window.location.href = `catalogo.html?${params}`;
         }
       };
 
       btnNext.onclick = () => {
         if (currentPage < totalPages) {
           const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage + 1}` : `type=${currentType}&page=${currentPage + 1}`;
-          window.location.href = `catalog.html?${params}`;
+          window.location.href = `catalogo.html?${params}`;
         }
       };
 
