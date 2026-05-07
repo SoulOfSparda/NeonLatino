@@ -52,71 +52,6 @@
       border: none;
       position: absolute;
       inset: 0;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    
-    .player-wrapper iframe.loaded {
-      opacity: 1;
-    }
-
-    .player-placeholder {
-      position: absolute;
-      inset: 0;
-      background: var(--bg-void);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 5;
-      transition: opacity 0.4s ease;
-    }
-
-    .player-placeholder img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.3;
-      position: absolute;
-      inset: 0;
-    }
-
-    .player-placeholder-content {
-      position: relative;
-      z-index: 6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .play-btn-large {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(var(--neon-cyan-rgb), 0.2);
-      border: 2px solid var(--neon-cyan);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--neon-cyan);
-      font-size: 2.5rem;
-      box-shadow: 0 0 20px rgba(var(--neon-cyan-rgb), 0.4);
-      transition: transform 0.3s ease, background 0.3s ease;
-    }
-
-    .player-placeholder:hover .play-btn-large {
-      transform: scale(1.1);
-      background: rgba(var(--neon-cyan-rgb), 0.4);
-    }
-
-    .player-placeholder-text {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      letter-spacing: 0.2em;
-      color: #fff;
-      text-transform: uppercase;
     }
     
     .metadata {
@@ -241,13 +176,6 @@
   <!-- Watch Content -->
   <div class="watch-container reveal">
     <div class="player-wrapper">
-      <div class="player-placeholder" id="player-placeholder">
-        <img id="player-backdrop" src="" alt="">
-        <div class="player-placeholder-content">
-          <div class="play-btn-large">▶</div>
-          <span class="player-placeholder-text">Click para reproducir</span>
-        </div>
-      </div>
       <iframe id="video-player" src="" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
     </div>
     
