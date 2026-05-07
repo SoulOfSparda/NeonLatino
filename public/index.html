@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeonLatino — Streaming de Películas, Series y Anime</title>
-  <meta name="description" content="NeonLatino: Tu plataforma de streaming retro-futurista. Películas, series y anime en un solo lugar. Estética Blade Runner.">
+  <meta name="description"
+    content="NeonLatino: Tu plataforma de streaming retro-futurista. Películas, series y anime en un solo lugar.">
   <meta name="theme-color" content="#06060c">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
 
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
+
 <body>
 
   <!-- Atmospheric layers -->
@@ -36,10 +42,11 @@
       <a href="catalogo.html?type=movies" class="navbar__link" data-section="movies">Películas</a>
       <a href="catalogo.html?type=series" class="navbar__link" data-section="series">Series</a>
       <a href="catalogo.html?type=anime" class="navbar__link" data-section="anime">Anime</a>
-      
+
       <div class="navbar__search">
         <span class="navbar__search-icon">⌕</span>
-        <input type="text" class="navbar__search-input" placeholder="Buscar título..." id="search-input" autocomplete="off">
+        <input type="text" class="navbar__search-input" placeholder="Buscar título..." id="search-input"
+          autocomplete="off">
       </div>
     </div>
 
@@ -48,25 +55,16 @@
     </button>
   </nav>
 
-  <!-- Hero -->
+  <!-- Hero Slider -->
   <section class="hero" id="hero-section">
-    <div class="hero__backdrop" id="hero-backdrop" style="background-image: url('assets/hero-backdrop.png')"></div>
-    <div class="hero__content">
-      <span class="hero__badge" id="hero-badge">🔥 TENDENCIA #1</span>
-      <h1 class="hero__title" id="hero-title">BLADE RUNNER 2049</h1>
-      <div class="hero__meta">
-        <span class="hero__meta-item">2017</span>
-        <span class="hero__meta-item hero__meta-item--rating">★ 8.0</span>
-        <span class="hero__meta-item">Sci-Fi</span>
-        <span class="hero__meta-item">2h 44min</span>
+    <div class="hero__slider" id="hero-slider">
+      <!-- Slides will be injected by JS -->
+      <div style="height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; color: var(--neon-cyan);">
+        Inicializando sistema de tendencias...
       </div>
-      <p class="hero__synopsis" id="hero-synopsis">
-        Un joven oficial de LAPD descubre un secreto enterrado durante mucho tiempo que podría sumergir a la sociedad en el caos, lo que lo lleva a buscar a Rick Deckard, un ex blade runner desaparecido hace 30 años.
-      </p>
-      <div class="hero__actions">
-        <button class="btn btn--primary" id="hero-play-btn">▶ REPRODUCIR</button>
-        <button class="btn btn--ghost" id="hero-info-btn">+ INFO</button>
-      </div>
+    </div>
+    <div class="hero__dots" id="hero-dots">
+      <!-- Dots will be injected by JS -->
     </div>
   </section>
 
@@ -90,9 +88,11 @@
   <!-- Películas -->
   <section class="content-section" id="peliculas">
     <div class="section-header">
-      <div class="section-header__accent" style="background: var(--neon-magenta); box-shadow: 0 0 8px rgba(var(--neon-magenta-rgb), 0.5);"></div>
+      <div class="section-header__accent"
+        style="background: var(--neon-magenta); box-shadow: 0 0 8px rgba(var(--neon-magenta-rgb), 0.5);"></div>
       <h2 class="section-header__title">Películas</h2>
-      <div class="section-header__line" style="background: linear-gradient(to right, rgba(var(--neon-magenta-rgb), 0.2), transparent);"></div>
+      <div class="section-header__line"
+        style="background: linear-gradient(to right, rgba(var(--neon-magenta-rgb), 0.2), transparent);"></div>
       <a href="catalogo.html?type=movies" class="section-header__more">VER TODO →</a>
     </div>
     <div class="slider-wrapper">
@@ -107,9 +107,11 @@
   <!-- Series -->
   <section class="content-section" id="series">
     <div class="section-header">
-      <div class="section-header__accent" style="background: var(--neon-purple); box-shadow: 0 0 8px rgba(var(--neon-purple-rgb), 0.5);"></div>
+      <div class="section-header__accent"
+        style="background: var(--neon-purple); box-shadow: 0 0 8px rgba(var(--neon-purple-rgb), 0.5);"></div>
       <h2 class="section-header__title">Series</h2>
-      <div class="section-header__line" style="background: linear-gradient(to right, rgba(var(--neon-purple-rgb), 0.2), transparent);"></div>
+      <div class="section-header__line"
+        style="background: linear-gradient(to right, rgba(var(--neon-purple-rgb), 0.2), transparent);"></div>
       <a href="catalogo.html?type=series" class="section-header__more">VER TODO →</a>
     </div>
     <div class="slider-wrapper">
@@ -124,9 +126,11 @@
   <!-- Anime -->
   <section class="content-section" id="anime">
     <div class="section-header">
-      <div class="section-header__accent" style="background: var(--neon-amber); box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);"></div>
+      <div class="section-header__accent"
+        style="background: var(--neon-amber); box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);"></div>
       <h2 class="section-header__title">Anime</h2>
-      <div class="section-header__line" style="background: linear-gradient(to right, rgba(255, 170, 0, 0.2), transparent);"></div>
+      <div class="section-header__line"
+        style="background: linear-gradient(to right, rgba(255, 170, 0, 0.2), transparent);"></div>
       <a href="catalogo.html?type=anime" class="section-header__more">VER TODO →</a>
     </div>
     <div class="slider-wrapper">
@@ -157,4 +161,5 @@
   <script src="js/animations.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

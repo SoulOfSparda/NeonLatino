@@ -70,50 +70,85 @@ const NeonApp = (() => {
     }
   }
 
-  /* --- Update Hero --- */
-  function updateHero(featured) {
-    if (!featured) return;
-    
-    const heroTitle = document.getElementById('hero-title');
-    const heroSynopsis = document.getElementById('hero-synopsis');
-    const heroBadge = document.getElementById('hero-badge');
-    const heroBackdrop = document.getElementById('hero-backdrop');
-    
-    const title = featured.title || featured.name;
-    const overview = featured.overview || '';
-    const backdropPath = featured.backdrop_path || featured.backdrop;
+  /* --- Hero Slider --- */
+  let heroTimer = null;
+  let currentSlide = 0;
 
-    if (heroTitle) heroTitle.textContent = title.toUpperCase();
-    if (heroBadge) heroBadge.textContent = `🔥 TENDENCIA #1`;
-    if (heroSynopsis) heroSynopsis.textContent = overview.length > 200 ? overview.substring(0, 197) + '...' : overview;
-    
-    if (heroBackdrop && backdropPath) {
-      heroBackdrop.style.backgroundImage = `url('${IMG}/original${backdropPath}')`;
+  function initHeroSlider(items) {
+    const slider = document.getElementById('hero-slider');
+    const dotsContainer = document.getElementById('hero-dots');
+    if (!slider || !items || items.length === 0) return;
+
+    slider.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    currentSlide = 0;
+
+    items.forEach((item, index) => {
+      const title = item.title || item.name || 'Sin título';
+      const overview = item.overview || '';
+      const backdropPath = item.backdrop_path || item.backdrop;
+      const date = item.release_date || item.first_air_date || '';
+      const year = date ? date.split('-')[0] : 'N/A';
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      
+      let type = item.media_type || item.content_type || 'movie';
+      if (type === 'tv') {
+        const isAnime = item.genre_ids && item.genre_ids.includes(16) && item.origin_country && item.origin_country.includes('JP');
+        type = isAnime ? 'anime' : 'series';
+      }
+
+      const slide = document.createElement('div');
+      slide.className = `hero__slide ${index === 0 ? 'hero__slide--active' : ''}`;
+      slide.innerHTML = `
+        <div class="hero__backdrop" style="background-image: url('${IMG}/original${backdropPath}')"></div>
+        <div class="hero__content">
+          <span class="hero__badge">🔥 TENDENCIA #${index + 1}</span>
+          <h1 class="hero__title">${title.toUpperCase()}</h1>
+          <div class="hero__meta">
+            <span class="hero__meta-item">${year}</span>
+            <span class="hero__meta-item hero__meta-item--rating">★ ${rating}</span>
+            <span class="hero__meta-item">${type === 'anime' ? 'Anime' : type === 'series' ? 'Serie' : 'Película'}</span>
+          </div>
+          <p class="hero__synopsis">${overview.length > 250 ? overview.substring(0, 247) + '...' : overview}</p>
+          <div class="hero__actions">
+            <button class="btn btn--primary" onclick="window.location.href='ver.html?type=${type}&id=${item.id}'">▶ REPRODUCIR</button>
+            <button class="btn btn--ghost" onclick="window.location.href='ver.html?type=${type}&id=${item.id}'">+ INFO</button>
+          </div>
+        </div>
+      `;
+      slider.appendChild(slide);
+
+      const dot = document.createElement('div');
+      dot.className = `hero__dot ${index === 0 ? 'hero__dot--active' : ''}`;
+      dot.onclick = () => goToSlide(index);
+      dotsContainer.appendChild(dot);
+    });
+
+    startHeroTimer();
+
+    function goToSlide(index) {
+      clearInterval(heroTimer);
+      const slides = slider.querySelectorAll('.hero__slide');
+      const dots = dotsContainer.querySelectorAll('.hero__dot');
+      if (!slides[index]) return;
+
+      slides[currentSlide].classList.remove('hero__slide--active');
+      dots[currentSlide].classList.remove('hero__dot--active');
+
+      currentSlide = index;
+
+      slides[currentSlide].classList.add('hero__slide--active');
+      dots[currentSlide].classList.add('hero__dot--active');
+
+      startHeroTimer();
     }
 
-    const playBtn = document.getElementById('hero-play-btn');
-    const infoBtn = document.getElementById('hero-info-btn');
-    
-    if (playBtn) {
-      playBtn.onclick = () => {
-        let type = featured.media_type || featured.content_type || 'movie';
-        if (type === 'tv') {
-          const isAnime = featured.genre_ids && featured.genre_ids.includes(16) && featured.origin_country && featured.origin_country.includes('JP');
-          type = isAnime ? 'anime' : 'series';
-        }
-        window.location.href = `ver.html?type=${type}&id=${featured.id}`;
-      };
-    }
-    
-    if (infoBtn) {
-      infoBtn.onclick = () => {
-        let type = featured.media_type || featured.content_type || 'movie';
-        if (type === 'tv') {
-          const isAnime = featured.genre_ids && featured.genre_ids.includes(16) && featured.origin_country && featured.origin_country.includes('JP');
-          type = isAnime ? 'anime' : 'series';
-        }
-        window.location.href = `ver.html?type=${type}&id=${featured.id}`;
-      };
+    function startHeroTimer() {
+      if (heroTimer) clearInterval(heroTimer);
+      heroTimer = setInterval(() => {
+        let next = (currentSlide + 1) % items.length;
+        goToSlide(next);
+      }, 8000);
     }
   }
 
@@ -123,9 +158,8 @@ const NeonApp = (() => {
       // 1. Trending (TMDB)
       const trends = await NeonAPI.getTMDBTrending();
       if (trends && trends.results && trends.results.length > 0) {
-        updateHero(trends.results[0]);
-        // Quitar el primer elemento (hero) y mostrar el resto
-        renderRow('trending-row', trends.results.slice(1, 15));
+        initHeroSlider(trends.results.slice(0, 5));
+        renderRow('trending-row', trends.results.slice(5, 20));
       }
 
       // Función auxiliar para obtener posters de TMDB limitando a 12 items
