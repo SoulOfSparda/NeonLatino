@@ -145,22 +145,37 @@ const NeonApp = (() => {
         renderRow('trending-row', trends.results.slice(1, 15));
       }
 
+      // Función auxiliar para obtener posters de TMDB limitando a 12 items
+      async function hydrateWithTMDB(items, type) {
+        const tmdbType = (type === 'series' || type === 'anime' || type === 'tv') ? 'tv' : 'movie';
+        const limited = items.slice(0, 12);
+        const promises = limited.map(async (item) => {
+          const details = await NeonAPI.getTMDBDetails(tmdbType, item.tmdb_id);
+          if (!details || details.error) return item;
+          return { ...item, ...details }; // Mezclar datos de Vimeus con TMDB
+        });
+        return Promise.all(promises);
+      }
+
       // 2. Movies (Vimeus)
       const moviesData = await NeonAPI.getListingMovies();
-      if (moviesData && moviesData.data && moviesData.data.movies) {
-        renderRow('movies-row', moviesData.data.movies, 'movie');
+      if (moviesData && moviesData.data && moviesData.data.result) {
+        const hydratedMovies = await hydrateWithTMDB(moviesData.data.result, 'movie');
+        renderRow('movies-row', hydratedMovies, 'movie');
       }
 
       // 3. Series (Vimeus)
       const seriesData = await NeonAPI.getListingSeries();
-      if (seriesData && seriesData.data && seriesData.data.series) {
-        renderRow('series-row', seriesData.data.series, 'series');
+      if (seriesData && seriesData.data && seriesData.data.result) {
+        const hydratedSeries = await hydrateWithTMDB(seriesData.data.result, 'series');
+        renderRow('series-row', hydratedSeries, 'series');
       }
 
       // 4. Animes (Vimeus)
       const animesData = await NeonAPI.getListingAnimes();
-      if (animesData && animesData.data && animesData.data.animes) {
-        renderRow('anime-row', animesData.data.animes, 'anime');
+      if (animesData && animesData.data && animesData.data.result) {
+        const hydratedAnime = await hydrateWithTMDB(animesData.data.result, 'anime');
+        renderRow('anime-row', hydratedAnime, 'anime');
       }
 
     } catch (err) {
