@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const tmdbType = type === 'series' || type === 'anime' ? 'tv' : 'movie';
+    const tmdbType = (type === 'series' || type === 'anime' || type === 'tv') ? 'tv' : 'movie';
     const response = await fetch(`https://api.themoviedb.org/3/${tmdbType}/${id}?api_key=${apiKey}&language=es-MX&append_to_response=videos,credits`);
     
     if (!response.ok) {
