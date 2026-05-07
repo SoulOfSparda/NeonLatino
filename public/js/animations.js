@@ -104,12 +104,35 @@ const NeonFX = (() => {
     });
   }
 
+  /* --- Sliders --- */
+  function initSliders() {
+    const wrappers = document.querySelectorAll('.slider-wrapper');
+    wrappers.forEach(wrapper => {
+      const btnLeft = wrapper.querySelector('.slider-btn--left');
+      const btnRight = wrapper.querySelector('.slider-btn--right');
+      const row = wrapper.querySelector('.scroll-row');
+
+      if (!btnLeft || !btnRight || !row) return;
+
+      const scrollAmount = window.innerWidth > 768 ? window.innerWidth * 0.6 : window.innerWidth * 0.8;
+
+      btnLeft.addEventListener('click', () => {
+        row.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
+
+      btnRight.addEventListener('click', () => {
+        row.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+    });
+  }
+
   /* --- Initialize all effects --- */
   function init() {
     initRain();
     initScrollReveal();
     initNavbarScroll();
     initMobileMenu();
+    initSliders();
   }
 
   return { init, initScrollReveal };

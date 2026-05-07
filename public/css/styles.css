@@ -455,6 +455,60 @@ ul, ol { list-style: none; }
 
 .scroll-row::-webkit-scrollbar { display: none; }
 
+/* --- Slider Controls --- */
+.slider-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(6, 6, 12, 0.8);
+  border: 1px solid rgba(var(--neon-cyan-rgb), 0.4);
+  color: var(--neon-cyan);
+  font-size: 2rem;
+  font-family: var(--font-display);
+  width: 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.slider-wrapper:hover .slider-btn {
+  opacity: 1;
+}
+
+.slider-btn:hover {
+  background: rgba(var(--neon-cyan-rgb), 0.2);
+  box-shadow: 0 0 15px rgba(var(--neon-cyan-rgb), 0.5);
+}
+
+.slider-btn--left {
+  left: 0;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+}
+
+.slider-btn--right {
+  right: 0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+}
+
+@media (max-width: 768px) {
+  .slider-btn {
+    display: none; /* Let mobile users use touch swipe naturally */
+  }
+}
+
 /* --- Featured Grid (Trending) --- */
 .featured-grid {
   display: grid;
