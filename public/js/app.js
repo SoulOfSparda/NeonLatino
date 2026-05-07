@@ -105,39 +105,6 @@ const NeonApp = (() => {
     }
   }
 
-  /* --- Search handler --- */
-  function initSearch() {
-    const input = document.getElementById('search-input');
-    if (!input) return;
-
-    let timeout;
-    input.addEventListener('input', () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(async () => {
-        const query = input.value.trim();
-        if (!query) {
-          // Restaurar trends si se limpia la búsqueda
-          const trends = await NeonAPI.getTMDBTrending();
-          if (trends && trends.results) {
-             renderRow('trending-row', trends.results.slice(0, 10));
-          }
-          return;
-        }
-        
-        // Mostrar skeleton loading
-        const container = document.getElementById('trending-row');
-        if (container) container.innerHTML = '<div style="padding: 2rem; color: var(--neon-cyan);">Buscando...</div>';
-
-        const searchResults = await NeonAPI.searchTMDB(query);
-        if (searchResults && searchResults.results) {
-           renderRow('trending-row', searchResults.results.filter(r => r.media_type !== 'person'));
-        } else {
-           renderRow('trending-row', []);
-        }
-      }, 500);
-    });
-  }
-
   /* --- Fetch and Render Data --- */
   async function loadData() {
     try {

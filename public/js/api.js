@@ -30,7 +30,7 @@ const NeonAPI = (() => {
     getListingAnimes: (page = 1) => fetchJSON(`/api/listing/animes?page=${page}`),
     getTMDBTrending: () => fetchJSON('/api/tmdb/trending'),
     getTMDBDetails: (type, id) => fetchJSON(`/api/tmdb/details?type=${type}&id=${id}`),
-    searchTMDB: (query) => fetchJSON(`/api/tmdb/search?q=${encodeURIComponent(query)}`),
+    searchTMDB: (query, page = 1) => fetchJSON(`/api/tmdb/search?q=${encodeURIComponent(query)}&page=${page}`),
 
     // Vimeus embed URL builder (view_key is public)
     getEmbedURL(type, tmdbId, season, episode) {

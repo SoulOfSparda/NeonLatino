@@ -7,6 +7,7 @@ const CatalogApp = (() => {
   const IMG = 'https://image.tmdb.org/t/p';
   const urlParams = new URLSearchParams(window.location.search);
   const currentType = urlParams.get('type') || 'movies';
+  const searchQuery = urlParams.get('q');
   let currentPage = parseInt(urlParams.get('page')) || 1;
   let totalPages = 1;
 
@@ -24,8 +25,10 @@ const CatalogApp = (() => {
 
   function updateActiveNav() {
     document.querySelectorAll('.navbar__link').forEach(link => link.classList.remove('navbar__link--active'));
-    const activeLink = document.getElementById(`nav-${currentType}`);
-    if (activeLink) activeLink.classList.add('navbar__link--active');
+    if (!searchQuery) {
+      const activeLink = document.getElementById(`nav-${currentType}`);
+      if (activeLink) activeLink.classList.add('navbar__link--active');
+    }
   }
 
   function createCard(item, typeOverride = null) {
@@ -77,47 +80,78 @@ const CatalogApp = (() => {
     const btnNext = document.getElementById('btn-next');
 
     if (titleEl) {
-      titleEl.textContent = typeNames[currentType] || 'Catálogo';
-      titleEl.style.color = currentType === 'series' ? 'var(--neon-purple)' : currentType === 'anime' ? 'var(--neon-amber)' : 'var(--neon-cyan)';
+      if (searchQuery) {
+        titleEl.textContent = `RESULTADOS PARA: "${searchQuery}"`;
+        titleEl.style.color = 'var(--neon-cyan)';
+      } else {
+        titleEl.textContent = typeNames[currentType] || 'Catálogo';
+        titleEl.style.color = currentType === 'series' ? 'var(--neon-purple)' : currentType === 'anime' ? 'var(--neon-amber)' : 'var(--neon-cyan)';
+      }
     }
 
     gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--neon-cyan); padding: 4rem;">Cargando interfaz neural...</div>';
 
     try {
-      let dataResponse;
-      
-      if (currentType === 'series') {
-        dataResponse = await NeonAPI.getListingSeries(currentPage);
-      } else if (currentType === 'anime') {
-        dataResponse = await NeonAPI.getListingAnimes(currentPage);
-      } else {
-        dataResponse = await NeonAPI.getListingMovies(currentPage);
-      }
+      if (searchQuery) {
+        // --- LÓGICA DE BÚSQUEDA ---
+        const dataResponse = await NeonAPI.searchTMDB(searchQuery, currentPage);
+        if (dataResponse && dataResponse.results && dataResponse.results.length > 0) {
+          totalPages = dataResponse.total_pages || 1;
+          const items = dataResponse.results;
+          
+          gridEl.innerHTML = items.map(item => {
+            const typeMap = { movie: 'movie', tv: 'series' };
+            const type = typeMap[item.media_type] || 'movie';
+            return createCard(item, type);
+          }).join('');
 
-      if (dataResponse && dataResponse.data && dataResponse.data.result) {
-        totalPages = dataResponse.data.pages || 1;
-        const items = dataResponse.data.result;
-        
-        // Fetch TMDB data for posters
-        const hydratedItems = await hydrateWithTMDB(items, currentType);
-        
-        gridEl.innerHTML = hydratedItems.map(item => createCard(item, cTypeMap[currentType])).join('');
-
-        // Add click handlers
-        gridEl.querySelectorAll('.card').forEach(card => {
-          card.addEventListener('click', () => {
-            const id = card.dataset.id;
-            const cType = card.dataset.type;
-            window.location.href = `watch.html?type=${cType}&id=${id}`;
+          gridEl.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+              const id = card.dataset.id;
+              const cType = card.dataset.type;
+              window.location.href = `watch.html?type=${cType}&id=${id}`;
+            });
           });
-        });
 
-        if (typeof NeonFX !== 'undefined') {
-          NeonFX.initScrollReveal();
+          if (typeof NeonFX !== 'undefined') NeonFX.initScrollReveal();
+
+        } else {
+          gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados disponibles en los servidores de Vimeus.</div>';
+          totalPages = 1;
+        }
+      } else {
+        // --- LÓGICA DE CATÁLOGO NORMAL ---
+        let dataResponse;
+        if (currentType === 'series') {
+          dataResponse = await NeonAPI.getListingSeries(currentPage);
+        } else if (currentType === 'anime') {
+          dataResponse = await NeonAPI.getListingAnimes(currentPage);
+        } else {
+          dataResponse = await NeonAPI.getListingMovies(currentPage);
         }
 
-      } else {
-        gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados.</div>';
+        if (dataResponse && dataResponse.data && dataResponse.data.result) {
+          totalPages = dataResponse.data.pages || 1;
+          const items = dataResponse.data.result;
+          
+          const hydratedItems = await hydrateWithTMDB(items, currentType);
+          
+          gridEl.innerHTML = hydratedItems.map(item => createCard(item, cTypeMap[currentType])).join('');
+
+          gridEl.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+              const id = card.dataset.id;
+              const cType = card.dataset.type;
+              window.location.href = `watch.html?type=${cType}&id=${id}`;
+            });
+          });
+
+          if (typeof NeonFX !== 'undefined') NeonFX.initScrollReveal();
+
+        } else {
+          gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados.</div>';
+          totalPages = 1;
+        }
       }
 
       // Update Pagination UI
@@ -128,13 +162,15 @@ const CatalogApp = (() => {
       // Handle Pagination Clicks
       btnPrev.onclick = () => {
         if (currentPage > 1) {
-          window.location.href = `catalog.html?type=${currentType}&page=${currentPage - 1}`;
+          const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage - 1}` : `type=${currentType}&page=${currentPage - 1}`;
+          window.location.href = `catalog.html?${params}`;
         }
       };
 
       btnNext.onclick = () => {
         if (currentPage < totalPages) {
-          window.location.href = `catalog.html?type=${currentType}&page=${currentPage + 1}`;
+          const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage + 1}` : `type=${currentType}&page=${currentPage + 1}`;
+          window.location.href = `catalog.html?${params}`;
         }
       };
 

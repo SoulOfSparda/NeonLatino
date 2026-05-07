@@ -136,9 +136,14 @@
 
     <div class="navbar__nav" id="nav-links">
       <a href="/" class="navbar__link">Inicio</a>
-      <a href="/#peliculas" class="navbar__link">Películas</a>
-      <a href="/#series" class="navbar__link">Series</a>
-      <a href="/#anime" class="navbar__link">Anime</a>
+      <a href="catalog.html?type=movies" class="navbar__link">Películas</a>
+      <a href="catalog.html?type=series" class="navbar__link">Series</a>
+      <a href="catalog.html?type=anime" class="navbar__link">Anime</a>
+    </div>
+
+    <div class="navbar__search">
+      <span class="navbar__search-icon">⌕</span>
+      <input type="text" class="navbar__search-input" placeholder="Buscar título..." id="search-input" autocomplete="off">
     </div>
 
     <button class="navbar__hamburger" id="hamburger-btn" aria-label="Menú">
@@ -191,6 +196,7 @@
 
   <!-- Scripts -->
   <script src="js/api.js"></script>
+  <script src="js/search.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/watch.js"></script>
 </body>
