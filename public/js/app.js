@@ -60,6 +60,10 @@ const NeonApp = (() => {
         window.location.href = `watch.html?type=${cType}&id=${id}`;
       });
     });
+
+    if (typeof NeonFX !== 'undefined') {
+      NeonFX.initScrollReveal();
+    }
   }
 
   /* --- Update Hero --- */

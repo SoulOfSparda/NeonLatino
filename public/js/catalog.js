@@ -112,6 +112,10 @@ const CatalogApp = (() => {
           });
         });
 
+        if (typeof NeonFX !== 'undefined') {
+          NeonFX.initScrollReveal();
+        }
+
       } else {
         gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados.</div>';
       }

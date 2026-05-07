@@ -49,25 +49,31 @@ const NeonFX = (() => {
     draw();
   }
 
+  let observer = null;
   /* --- Scroll Reveal (IntersectionObserver) --- */
   function initScrollReveal() {
-    const reveals = document.querySelectorAll('.reveal');
+    const reveals = document.querySelectorAll('.reveal:not(.reveal--observed)');
     if (!reveals.length) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal--visible');
-          // Also reveal children for stagger
-          entry.target.querySelectorAll('.card, .reveal-child').forEach(child => {
-            child.classList.add('reveal--visible');
-          });
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    if (!observer) {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal--visible');
+            // Also reveal children for stagger
+            entry.target.querySelectorAll('.card, .reveal-child').forEach(child => {
+              child.classList.add('reveal--visible');
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    }
 
-    reveals.forEach(el => observer.observe(el));
+    reveals.forEach(el => {
+      el.classList.add('reveal--observed');
+      observer.observe(el);
+    });
   }
 
   /* --- Navbar scroll effect --- */
@@ -106,7 +112,7 @@ const NeonFX = (() => {
     initMobileMenu();
   }
 
-  return { init };
+  return { init, initScrollReveal };
 })();
 
 document.addEventListener('DOMContentLoaded', NeonFX.init);
