@@ -10,9 +10,13 @@ const WatchApp = (() => {
   const id = urlParams.get('id');
 
   const player = document.getElementById('video-player');
+  const placeholder = document.getElementById('player-placeholder');
+  const playerBackdrop = document.getElementById('player-backdrop');
   const seasonSelect = document.getElementById('season-select');
   const episodeSelect = document.getElementById('episode-select');
   const selectorContainer = document.getElementById('season-episode-selector');
+
+  let pendingEmbed = null;
 
   function updateMetadata(data) {
     const title = data.title || data.name || 'Sin título';
@@ -21,6 +25,11 @@ const WatchApp = (() => {
     const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
     const genres = data.genres ? data.genres.map(g => g.name).join(', ') : '';
     const overview = data.overview || 'No hay sinopsis disponible.';
+
+    const backdrop = data.backdrop_path || data.backdrop;
+    if (backdrop && playerBackdrop) {
+      playerBackdrop.src = `https://image.tmdb.org/t/p/original${backdrop}`;
+    }
 
     document.getElementById('media-title').textContent = title;
     document.getElementById('media-year').textContent = year;
@@ -32,13 +41,37 @@ const WatchApp = (() => {
   }
 
   function updatePlayer(season = null, episode = null) {
-    // Determine the embed type for Vimeus
     let embedType = type;
-    if (type === 'tv') embedType = 'series'; // Vimeus uses 'serie' which is handled in api.js
+    if (type === 'tv') embedType = 'series';
     
     const embedUrl = NeonAPI.getEmbedURL(embedType, id, season, episode);
-    console.log('[NeonLatino] Loading embed:', embedUrl);
-    player.src = embedUrl;
+    console.log('[NeonLatino] Embed prepared:', embedUrl);
+    
+    // Store as pending, will load on interaction
+    pendingEmbed = embedUrl;
+    
+    // Show placeholder if we were already playing something else
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      placeholder.style.opacity = '1';
+    }
+    if (player) {
+      player.classList.remove('loaded');
+      player.src = ''; 
+    }
+  }
+
+  function startPlayback() {
+    if (!pendingEmbed || !player) return;
+    
+    player.src = pendingEmbed;
+    player.onload = () => {
+      player.classList.add('loaded');
+      if (placeholder) {
+        placeholder.style.opacity = '0';
+        setTimeout(() => { placeholder.style.display = 'none'; }, 400);
+      }
+    };
   }
 
   function populateEpisodes(seasonNumber) {
@@ -111,6 +144,11 @@ const WatchApp = (() => {
       } else {
         // It's a movie
         updatePlayer();
+      }
+
+      // Add click to placeholder
+      if (placeholder) {
+        placeholder.addEventListener('click', startPlayback);
       }
 
     } catch (err) {
