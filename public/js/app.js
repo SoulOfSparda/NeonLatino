@@ -57,8 +57,7 @@ const NeonApp = (() => {
       card.addEventListener('click', () => {
         const id = card.dataset.id;
         const cType = card.dataset.type;
-        console.log(`[NeonLatino] Play: ${cType} #${id}`);
-        alert(`🎬 Reproducir: ${card.querySelector('.card__title').textContent}\n\n(Player disponible en Fase 3)`);
+        window.location.href = `watch.html?type=${cType}&id=${id}`;
       });
     });
   }
@@ -82,6 +81,23 @@ const NeonApp = (() => {
     
     if (heroBackdrop && backdropPath) {
       heroBackdrop.style.backgroundImage = `url('${IMG}/original${backdropPath}')`;
+    }
+
+    const playBtn = document.getElementById('hero-play-btn');
+    const infoBtn = document.getElementById('hero-info-btn');
+    
+    if (playBtn) {
+      playBtn.onclick = () => {
+        const type = featured.media_type || featured.content_type || 'movie';
+        window.location.href = `watch.html?type=${type}&id=${featured.id}`;
+      };
+    }
+    
+    if (infoBtn) {
+      infoBtn.onclick = () => {
+        const type = featured.media_type || featured.content_type || 'movie';
+        window.location.href = `watch.html?type=${type}&id=${featured.id}`;
+      };
     }
   }
 
