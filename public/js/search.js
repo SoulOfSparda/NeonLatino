@@ -1,36 +1,57 @@
 /* ================================================
    NEONLATINO — Global Search
-   Handles redirection to catalog.html for search results
+   Desktop input + mobile overlay
    ================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('search-input');
-  if (!input) return;
+  const mobileInput = document.getElementById('search-input-mobile');
+  const toggleBtn = document.getElementById('search-toggle-btn');
+  const overlay = document.getElementById('search-overlay');
+  const closeBtn = document.getElementById('search-overlay-close');
 
-  // Si estamos en la vista de búsqueda, restaurar el valor
+  // Restore query if on search results page
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('q')) {
-    input.value = urlParams.get('q');
+    const q = urlParams.get('q');
+    if (input) input.value = q;
+    if (mobileInput) mobileInput.value = q;
   }
 
-  function executeSearch() {
-    const query = input.value.trim();
-    if (query) {
-      window.location.href = `catalogo.html?q=${encodeURIComponent(query)}`;
+  function executeSearch(query) {
+    const q = query.trim();
+    if (q) window.location.href = `catalogo.html?q=${encodeURIComponent(q)}`;
+  }
+
+  // Desktop search
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') executeSearch(input.value);
+    });
+    const searchIcon = document.querySelector('.navbar__search-icon');
+    if (searchIcon) {
+      searchIcon.style.cursor = 'pointer';
+      searchIcon.addEventListener('click', () => executeSearch(input.value));
     }
   }
 
-  // Buscar con la tecla Enter
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      executeSearch();
-    }
-  });
+  // Mobile overlay toggle
+  if (toggleBtn && overlay) {
+    toggleBtn.addEventListener('click', () => {
+      overlay.classList.add('search-overlay--open');
+      setTimeout(() => mobileInput && mobileInput.focus(), 100);
+    });
 
-  // Hacer que el icono de la lupa sea cliqueable
-  const searchIcon = document.querySelector('.navbar__search-icon');
-  if (searchIcon) {
-    searchIcon.style.cursor = 'pointer';
-    searchIcon.addEventListener('click', executeSearch);
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        overlay.classList.remove('search-overlay--open');
+      });
+    }
+
+    if (mobileInput) {
+      mobileInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') executeSearch(mobileInput.value);
+      });
+    }
   }
 });

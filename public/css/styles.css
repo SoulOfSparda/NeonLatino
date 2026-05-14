@@ -886,10 +886,85 @@ ul, ol { list-style: none; }
   100% { background-position: -200% 0; }
 }
 
+/* --- Mobile Search Toggle & Overlay --- */
+.navbar__search-toggle {
+  display: none;
+  font-size: 1.4rem;
+  color: var(--neon-cyan);
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 8px rgba(var(--neon-cyan-rgb), 0.5);
+  transition: color 0.3s ease;
+}
+
+.search-overlay {
+  display: none;
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(6, 6, 12, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1rem var(--content-padding);
+  border-bottom: 1px solid rgba(var(--neon-cyan-rgb), 0.3);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.search-overlay--open {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.search-overlay__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-overlay__input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(var(--neon-cyan-rgb), 0.05);
+  border: 1px solid rgba(var(--neon-cyan-rgb), 0.3);
+  color: var(--text-primary);
+  outline: none;
+  min-height: 44px;
+}
+
+.search-overlay__input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(var(--neon-cyan-rgb), 0.2);
+}
+
+.search-overlay__close {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.search-overlay__close:hover {
+  color: var(--neon-magenta);
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .navbar__nav { display: none; }
   .navbar__hamburger { display: flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .navbar__search-toggle { display: flex; }
 
   .navbar__nav--open {
     display: flex;
