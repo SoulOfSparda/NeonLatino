@@ -2,12 +2,13 @@
   "name": "neonlatino",
   "version": "1.0.0",
   "description": "NeonLatino — Plataforma de streaming retro-futurista",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "npx serve public -l 3000",
     "build": "echo 'No build step needed'"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "22.x"
   }
 }
