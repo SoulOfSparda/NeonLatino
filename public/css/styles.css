@@ -739,6 +739,21 @@ ul, ol { list-style: none; }
   word-break: break-word;
 }
 
+/* --- Season Badge --- */
+.card__seasons {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--neon-cyan);
+  background: rgba(6, 6, 12, 0.9);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(var(--neon-cyan-rgb), 0.4);
+  letter-spacing: 0.05em;
+}
+
 /* --- Footer --- */
 .footer {
   margin-top: 4rem;
@@ -874,8 +889,7 @@ ul, ol { list-style: none; }
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .navbar__nav { display: none; }
-  .navbar__search { display: none; }
-  .navbar__hamburger { display: flex; }
+  .navbar__hamburger { display: flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
 
   .navbar__nav--open {
     display: flex;
@@ -897,9 +911,13 @@ ul, ol { list-style: none; }
     font-size: 1.1rem;
     width: 100%;
     padding: 0.75rem 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 
   .navbar__nav--open .navbar__search {
+    display: block;
     margin-left: 0;
     width: 100%;
     margin-top: 0.5rem;
@@ -911,6 +929,7 @@ ul, ol { list-style: none; }
     width: 100%;
     font-size: 1rem;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
+    min-height: 44px;
   }
 
   .navbar__nav--open .navbar__search-input:focus {
@@ -923,12 +942,16 @@ ul, ol { list-style: none; }
   }
 
   .hero {
-    min-height: 80vh;
-    padding-bottom: 2rem;
+    min-height: 70vh;
+    height: auto;
+  }
+
+  .hero__slide {
+    padding-bottom: 3rem;
   }
 
   .hero__title {
-    font-size: clamp(1.8rem, 8vw, 2.8rem);
+    font-size: clamp(1.6rem, 7vw, 2.4rem);
   }
 
   .hero__synopsis {
@@ -939,8 +962,38 @@ ul, ol { list-style: none; }
     overflow: hidden;
   }
 
+  .hero__actions {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero__actions .btn {
+    min-height: 44px;
+    padding: 0.6rem 1.5rem;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .hero__dots {
+    bottom: 1rem;
+    right: 50%;
+    transform: translateX(50%);
+  }
+
   .card {
-    width: 140px;
+    width: 130px;
+  }
+
+  .scroll-row {
+    gap: 0.75rem;
+    padding-left: 0.5rem;
+    scroll-padding-left: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .slider-btn {
+    display: none;
   }
 
   .featured-grid {
@@ -954,6 +1007,17 @@ ul, ol { list-style: none; }
   .footer__inner {
     flex-direction: column;
     text-align: center;
+  }
+
+  .pagination {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .pagination .btn {
+    min-height: 44px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.65rem;
   }
 }
 

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Buscar con la tecla Enter
-  input.addEventListener('keypress', (e) => {
+  input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       executeSearch();
     }

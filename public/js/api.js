@@ -5,7 +5,7 @@
 
 const NeonAPI = (() => {
   const cache = new Map();
-  const CACHE_TTL = 5 * 60 * 1000; // 5 min
+  const CACHE_TTL = 15 * 60 * 1000; // 15 min
 
   async function fetchJSON(url) {
     const cached = cache.get(url);

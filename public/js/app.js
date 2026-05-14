@@ -7,6 +7,19 @@ const NeonApp = (() => {
   // TMDB image base
   const IMG = 'https://image.tmdb.org/t/p';
 
+  function deduplicateByTmdbId(items) {
+    const map = new Map();
+    items.forEach(item => {
+      const key = item.tmdb_id || item.id;
+      if (map.has(key)) {
+        map.get(key).seasonCount++;
+      } else {
+        map.set(key, { ...item, seasonCount: 1 });
+      }
+    });
+    return Array.from(map.values());
+  }
+
   /* --- Card HTML Generator --- */
   function createCard(item, typeOverride = null) {
     const posterPath = item.poster || item.poster_path; // Support Vimeus or TMDB format
@@ -35,6 +48,7 @@ const NeonApp = (() => {
             ${title}
           </div>
           ${rating !== 'N/A' ? `<span class="card__rating">★ ${rating}</span>` : ''}
+          ${item.seasonCount > 1 ? `<span class="card__seasons">${item.seasonCount} temps</span>` : ''}
         </div>
         <div class="card__accent"></div>
         <div class="card__info">
@@ -165,7 +179,7 @@ const NeonApp = (() => {
       // Función auxiliar para obtener posters de TMDB limitando a 12 items
       async function hydrateWithTMDB(items, type) {
         const tmdbType = (type === 'series' || type === 'anime' || type === 'tv') ? 'tv' : 'movie';
-        const limited = items.slice(0, 12);
+        const limited = items.slice(0, 8);
         const promises = limited.map(async (item) => {
           const details = await NeonAPI.getTMDBDetails(tmdbType, item.tmdb_id);
           if (!details || details.error) return item;
@@ -177,21 +191,21 @@ const NeonApp = (() => {
       // 2. Movies (Vimeus)
       const moviesData = await NeonAPI.getListingMovies();
       if (moviesData && moviesData.data && moviesData.data.result) {
-        const hydratedMovies = await hydrateWithTMDB(moviesData.data.result, 'movie');
+        const hydratedMovies = await hydrateWithTMDB(deduplicateByTmdbId(moviesData.data.result), 'movie');
         renderRow('movies-row', hydratedMovies, 'movie');
       }
 
       // 3. Series (Vimeus)
       const seriesData = await NeonAPI.getListingSeries();
       if (seriesData && seriesData.data && seriesData.data.result) {
-        const hydratedSeries = await hydrateWithTMDB(seriesData.data.result, 'series');
+        const hydratedSeries = await hydrateWithTMDB(deduplicateByTmdbId(seriesData.data.result), 'series');
         renderRow('series-row', hydratedSeries, 'series');
       }
 
       // 4. Animes (Vimeus)
       const animesData = await NeonAPI.getListingAnimes();
       if (animesData && animesData.data && animesData.data.result) {
-        const hydratedAnime = await hydrateWithTMDB(animesData.data.result, 'anime');
+        const hydratedAnime = await hydrateWithTMDB(deduplicateByTmdbId(animesData.data.result), 'anime');
         renderRow('anime-row', hydratedAnime, 'anime');
       }
 
@@ -203,7 +217,6 @@ const NeonApp = (() => {
   /* --- Initialize App --- */
   function init() {
     loadData();
-    initSearch();
 
     console.log('%c⚡ NEONLATINO', 'color: #00f0ff; font-size: 20px; font-weight: bold; text-shadow: 0 0 10px #00f0ff;');
     console.log('%cBlade Runner Edition — Phase 2', 'color: #ff2d7b; font-size: 12px;');

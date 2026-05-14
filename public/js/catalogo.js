@@ -23,6 +23,19 @@ const CatalogApp = (() => {
     'anime': 'anime'
   };
 
+  function deduplicateByTmdbId(items) {
+    const map = new Map();
+    items.forEach(item => {
+      const key = item.tmdb_id || item.id;
+      if (map.has(key)) {
+        map.get(key).seasonCount++;
+      } else {
+        map.set(key, { ...item, seasonCount: 1 });
+      }
+    });
+    return Array.from(map.values());
+  }
+
   function updateActiveNav() {
     document.querySelectorAll('.navbar__link').forEach(link => link.classList.remove('navbar__link--active'));
     if (!searchQuery) {
@@ -53,6 +66,7 @@ const CatalogApp = (() => {
             ${title}
           </div>
           ${rating !== 'N/A' ? `<span class="card__rating">★ ${rating}</span>` : ''}
+          ${item.seasonCount > 1 ? `<span class="card__seasons">${item.seasonCount} temps</span>` : ''}
         </div>
         <div class="card__accent"></div>
         <div class="card__info">
@@ -62,14 +76,46 @@ const CatalogApp = (() => {
       </div>`;
   }
 
-  async function hydrateWithTMDB(items, type) {
+  function lazyHydrateCards(gridEl, items, type) {
     const tmdbType = (type === 'series' || type === 'anime') ? 'tv' : 'movie';
-    const promises = items.map(async (item) => {
-      const details = await NeonAPI.getTMDBDetails(tmdbType, item.tmdb_id);
-      if (!details || details.error) return item;
-      return { ...item, ...details };
-    });
-    return Promise.all(promises);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        const card = entry.target;
+        const id = card.dataset.id;
+        const item = items.find(i => String(i.tmdb_id || i.id) === id);
+        if (!item || card.dataset.hydrated) return;
+        card.dataset.hydrated = '1';
+        NeonAPI.getTMDBDetails(tmdbType, id).then(details => {
+          if (!details || details.error) return;
+          const poster = details.poster_path;
+          if (poster) {
+            const img = card.querySelector('.card__poster img');
+            const grad = card.querySelector('.card__poster-gradient');
+            if (img) { img.src = `https://image.tmdb.org/t/p/w500${poster}`; img.style.display = ''; }
+            else {
+              const newImg = document.createElement('img');
+              newImg.src = `https://image.tmdb.org/t/p/w500${poster}`;
+              newImg.alt = details.name || details.title || '';
+              newImg.loading = 'lazy';
+              card.querySelector('.card__poster').prepend(newImg);
+            }
+            if (grad) grad.style.display = 'none';
+          }
+          if (details.vote_average) {
+            let badge = card.querySelector('.card__rating');
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'card__rating';
+              card.querySelector('.card__poster').appendChild(badge);
+            }
+            badge.textContent = `★ ${details.vote_average.toFixed(1)}`;
+          }
+        });
+      });
+    }, { rootMargin: '200px' });
+    gridEl.querySelectorAll('.card').forEach(card => observer.observe(card));
   }
 
   async function loadCatalog() {
@@ -135,11 +181,9 @@ const CatalogApp = (() => {
 
         if (dataResponse && dataResponse.data && dataResponse.data.result) {
           totalPages = dataResponse.data.pages || 1;
-          const items = dataResponse.data.result;
+          const items = deduplicateByTmdbId(dataResponse.data.result);
           
-          const hydratedItems = await hydrateWithTMDB(items, currentType);
-          
-          gridEl.innerHTML = hydratedItems.map(item => createCard(item, cTypeMap[currentType])).join('');
+          gridEl.innerHTML = items.map(item => createCard(item, cTypeMap[currentType])).join('');
 
           gridEl.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', () => {
@@ -149,6 +193,7 @@ const CatalogApp = (() => {
             });
           });
 
+          lazyHydrateCards(gridEl, items, currentType);
           if (typeof NeonFX !== 'undefined') NeonFX.initScrollReveal();
 
         } else {
