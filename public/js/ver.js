@@ -1,6 +1,6 @@
 /* ================================================
    NEONLATINO — Watch Logic
-   Episode sidebar, prev/next navigation, TMDB metadata
+   Episode sidebar, prev/next navigation, type fallback
    ================================================ */
 
 const WatchApp = (() => {
@@ -12,6 +12,9 @@ const WatchApp = (() => {
   let currentData = null;
   let validSeasons = [];
 
+  // Track which Vimeus type works for each season
+  const seasonTypeCache = new Map();
+
   const player = document.getElementById('video-player');
   const seasonSelect = document.getElementById('season-select');
   const episodeList = document.getElementById('episode-list');
@@ -21,11 +24,46 @@ const WatchApp = (() => {
   const btnNext = document.getElementById('btn-next-ep');
   const epLabel = document.getElementById('ep-current-label');
 
-  function updatePlayer() {
-    let embedType = type;
-    if (type === 'tv') embedType = 'series';
-    const url = NeonAPI.getEmbedURL(embedType, id, currentSeason, currentEpisode);
-    if (player) player.src = url;
+  // Vimeus type fallback order based on content type
+  function getTypeFallbacks() {
+    if (type === 'anime') return ['anime', 'serie'];
+    if (type === 'series') return ['serie', 'anime'];
+    return ['movie'];
+  }
+
+  async function findWorkingType(season, episode) {
+    const cacheKey = `${id}_${season}`;
+    if (seasonTypeCache.has(cacheKey)) return seasonTypeCache.get(cacheKey);
+
+    const fallbacks = getTypeFallbacks();
+
+    for (const vType of fallbacks) {
+      try {
+        const res = await fetch(`/api/vimeus/check?type=${vType}&tmdb=${id}&se=${season}&ep=${episode}`);
+        const data = await res.json();
+        if (data.available) {
+          seasonTypeCache.set(cacheKey, vType);
+          return vType;
+        }
+      } catch (e) { /* continue */ }
+    }
+    // Default to first fallback if none work
+    seasonTypeCache.set(cacheKey, fallbacks[0]);
+    return fallbacks[0];
+  }
+
+  async function updatePlayer() {
+    const tmdbType = (type === 'series' || type === 'anime' || type === 'tv') ? 'tv' : 'movie';
+
+    if (tmdbType === 'tv') {
+      const workingType = await findWorkingType(currentSeason, currentEpisode);
+      const VIEW_KEY = '588MgMuO7k2yVVKabV204NlK3TTaBcAtLVuHJSDLe5o';
+      const url = `https://vimeus.com/e/${workingType}?tmdb=${id}&view_key=${VIEW_KEY}&se=${currentSeason}&ep=${currentEpisode}`;
+      if (player) player.src = url;
+    } else {
+      const url = NeonAPI.getEmbedURL(type, id);
+      if (player) player.src = url;
+    }
 
     // Update URL without reload
     const newUrl = new URL(window.location);
@@ -36,33 +74,24 @@ const WatchApp = (() => {
     updateUI();
   }
 
-  function updatePlayerMovie() {
-    const url = NeonAPI.getEmbedURL(type, id);
-    if (player) player.src = url;
-  }
-
   function getEpisodeCount(seasonNum) {
     const s = validSeasons.find(s => s.season_number == seasonNum);
     return s ? s.episode_count : 0;
   }
 
   function updateUI() {
-    // Update nav label
     if (epLabel) epLabel.textContent = `T${currentSeason} · Ep ${currentEpisode} de ${getEpisodeCount(currentSeason)}`;
 
-    // Update prev/next buttons
     const isFirstEp = currentEpisode === 1 && validSeasons[0]?.season_number == currentSeason;
     const lastSeason = validSeasons[validSeasons.length - 1];
     const isLastEp = currentEpisode >= getEpisodeCount(currentSeason) && lastSeason?.season_number == currentSeason;
     if (btnPrev) btnPrev.disabled = isFirstEp;
     if (btnNext) btnNext.disabled = isLastEp;
 
-    // Highlight active episode in list
     episodeList.querySelectorAll('.episode-item').forEach(el => {
       el.classList.toggle('episode-item--active', parseInt(el.dataset.ep) === currentEpisode);
     });
 
-    // Auto-scroll to active
     const active = episodeList.querySelector('.episode-item--active');
     if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
@@ -88,7 +117,6 @@ const WatchApp = (() => {
     if (currentEpisode < epCount) {
       currentEpisode++;
     } else {
-      // Next season
       const idx = validSeasons.findIndex(s => s.season_number == currentSeason);
       if (idx < validSeasons.length - 1) {
         currentSeason = validSeasons[idx + 1].season_number;
@@ -104,7 +132,6 @@ const WatchApp = (() => {
     if (currentEpisode > 1) {
       currentEpisode--;
     } else {
-      // Previous season, last episode
       const idx = validSeasons.findIndex(s => s.season_number == currentSeason);
       if (idx > 0) {
         currentSeason = validSeasons[idx - 1].season_number;
@@ -142,23 +169,19 @@ const WatchApp = (() => {
       document.title = `${title} — NeonLatino`;
 
       if (tmdbType === 'tv' && currentData.seasons) {
-        // Show sidebar and nav
         validSeasons = currentData.seasons.filter(s => s.season_number > 0);
         sidebar.classList.add('active');
         nav.classList.add('active');
 
-        // Populate season select
         seasonSelect.innerHTML = validSeasons.map(s =>
           `<option value="${s.season_number}">${s.name || 'Temporada ' + s.season_number}</option>`
         ).join('');
 
-        // Set initial season from URL or default
         if (!validSeasons.find(s => s.season_number == currentSeason)) {
           currentSeason = validSeasons[0]?.season_number || 1;
         }
         seasonSelect.value = currentSeason;
 
-        // Events
         seasonSelect.addEventListener('change', (e) => {
           currentSeason = parseInt(e.target.value);
           currentEpisode = 1;
@@ -172,7 +195,8 @@ const WatchApp = (() => {
         renderEpisodeList(currentSeason);
         updatePlayer();
       } else {
-        updatePlayerMovie();
+        const url = NeonAPI.getEmbedURL(type, id);
+        if (player) player.src = url;
       }
     } catch (err) {
       console.error('[NeonLatino] Watch Error:', err);
