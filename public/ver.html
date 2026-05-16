@@ -248,6 +248,19 @@
         padding: 0.5rem 0.8rem;
       }
     }
+
+    /* Cinema Mode */
+    body.cinema-mode .navbar,
+    body.cinema-mode .episode-sidebar,
+    body.cinema-mode .episode-nav,
+    body.cinema-mode .metadata,
+    body.cinema-mode .footer{display:none!important}
+    body.cinema-mode .watch-layout{grid-template-columns:1fr;max-width:100%}
+    body.cinema-mode .watch-main{padding:0}
+    body.cinema-mode .player-wrapper{aspect-ratio:auto;height:100vh;margin:0;border:none;box-shadow:none}
+    .cinema-exit{display:none;position:fixed;top:1rem;right:1rem;z-index:9999;font-family:var(--font-mono);font-size:.75rem;padding:.5rem 1rem;background:rgba(0,0,0,.8);color:var(--neon-cyan);border:1px solid rgba(var(--neon-cyan-rgb),.4);cursor:pointer;opacity:0;transition:opacity .3s}
+    body.cinema-mode .cinema-exit{display:block}
+    body.cinema-mode:hover .cinema-exit{opacity:1}
   </style>
 
   <!-- Favicon -->
@@ -294,6 +307,7 @@
   </nav>
 
   <!-- Watch Content -->
+  <button class="cinema-exit" id="cinema-exit">✕ SALIR MODO CINE</button>
   <div class="watch-layout">
     <div class="watch-main">
       <div class="player-wrapper">
@@ -304,6 +318,7 @@
       <div class="episode-nav" id="episode-nav">
         <button class="episode-nav__btn" id="btn-prev-ep">← ANTERIOR</button>
         <span class="episode-nav__current" id="ep-current-label">Ep 1</span>
+        <button class="episode-nav__btn" id="btn-cinema" title="Modo Cine">🎬 CINE</button>
         <button class="episode-nav__btn" id="btn-next-ep">SIGUIENTE →</button>
       </div>
 
@@ -313,6 +328,7 @@
           <span id="media-year">----</span>
           <span id="media-rating" style="color: var(--neon-amber)">★ --</span>
           <span id="media-genres">Géneros</span>
+          <span style="color:var(--text-dim);font-size:.7rem;border:1px solid rgba(var(--neon-cyan-rgb),.2);padding:.2rem .5rem" title="← → Episodios · N Temporada · F Fullscreen">⌨ ATAJOS</span>
         </div>
         <p class="metadata__synopsis" id="media-synopsis">Cargando sinopsis...</p>
       </div>
@@ -340,6 +356,7 @@
 
   <!-- Scripts -->
   <script src="js/api.js"></script>
+  <script src="js/history.js"></script>
   <script src="js/search.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/ver.js"></script>

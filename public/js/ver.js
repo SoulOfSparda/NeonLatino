@@ -63,6 +63,11 @@ const WatchApp = (() => {
     const url = `https://vimeus.com/e/${info.vimeusType}?tmdb=${id}&view_key=${VIEW_KEY}&se=${currentSeason}&ep=${currentEpisode}`;
     if (player) player.src = url;
 
+    // Save to history
+    if (typeof WatchHistory !== 'undefined' && currentData) {
+      WatchHistory.update({ id, type, title: currentData.title || currentData.name, poster: currentData.poster_path, season: currentSeason, episode: currentEpisode, totalEpisodes: info.episodeCount });
+    }
+
     // Update URL
     const newUrl = new URL(window.location);
     newUrl.searchParams.set('se', currentSeason);
@@ -158,6 +163,33 @@ const WatchApp = (() => {
       return;
     }
 
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      if (e.key === 'ArrowRight') goNext();
+      else if (e.key === 'ArrowLeft') goPrev();
+      else if (e.key === 'n' || e.key === 'N') {
+        const idx = validSeasons.findIndex(s => s.season_number == currentSeason);
+        if (idx < validSeasons.length - 1) {
+          currentSeason = validSeasons[idx + 1].season_number;
+          currentEpisode = 1;
+          if (seasonSelect) seasonSelect.value = currentSeason;
+          renderEpisodeList(currentSeason).then(() => updatePlayer());
+        }
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (player) { try { player.requestFullscreen(); } catch {} }
+      } else if (e.key === 'Escape') {
+        document.body.classList.remove('cinema-mode');
+      }
+    });
+
+    // Cinema mode
+    const cinemaBtn = document.getElementById('btn-cinema');
+    const cinemaExit = document.getElementById('cinema-exit');
+    const toggleCinema = () => document.body.classList.toggle('cinema-mode');
+    if (cinemaBtn) cinemaBtn.addEventListener('click', toggleCinema);
+    if (cinemaExit) cinemaExit.addEventListener('click', () => document.body.classList.remove('cinema-mode'));
+
     try {
       const tmdbType = (type === 'series' || type === 'anime' || type === 'tv') ? 'tv' : 'movie';
       currentData = await NeonAPI.getTMDBDetails(tmdbType, id);
@@ -206,6 +238,9 @@ const WatchApp = (() => {
       } else {
         const url = NeonAPI.getEmbedURL(type, id);
         if (player) player.src = url;
+        if (typeof WatchHistory !== 'undefined') {
+          WatchHistory.update({ id, type, title, poster: currentData.poster_path });
+        }
       }
     } catch (err) {
       console.error('[NeonLatino] Watch Error:', err);

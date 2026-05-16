@@ -11,6 +11,15 @@ const CatalogApp = (() => {
   let currentPage = parseInt(urlParams.get('page')) || 1;
   let totalPages = 1;
 
+  // Filter state from URL
+  const filterGenre = urlParams.get('genre') || '';
+  const filterSort = urlParams.get('sort') || 'popularity.desc';
+  const filterYear = urlParams.get('year') || '';
+  const useDiscover = !!(filterGenre || filterYear || urlParams.has('sort'));
+
+  const GENRES_MOVIE = {28:'Acción',12:'Aventura',16:'Animación',35:'Comedia',80:'Crimen',99:'Documental',18:'Drama',10751:'Familia',14:'Fantasía',36:'Historia',27:'Terror',10402:'Música',9648:'Misterio',10749:'Romance',878:'Ciencia ficción',10770:'Película de TV',53:'Suspenso',10752:'Bélica',37:'Western'};
+  const GENRES_TV = {10759:'Acción y Aventura',16:'Animación',35:'Comedia',80:'Crimen',99:'Documental',18:'Drama',10751:'Familia',10762:'Kids',9648:'Misterio',10763:'Noticias',10764:'Reality',10765:'Sci-Fi & Fantasía',10766:'Telenovela',10767:'Talk',10768:'Guerra y Política',37:'Western'};
+
   const typeNames = {
     'movies': 'Películas',
     'series': 'Series',
@@ -124,6 +133,27 @@ const CatalogApp = (() => {
     const pageInfo = document.getElementById('page-info');
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
+    const filtersEl = document.getElementById('catalog-filters');
+
+    // Init filters UI (only for non-search pages)
+    if (!searchQuery && filtersEl) {
+      filtersEl.style.display = '';
+      const genreSelect = document.getElementById('filter-genre');
+      const sortSelect = document.getElementById('filter-sort');
+      const yearInput = document.getElementById('filter-year');
+      const genres = (currentType === 'movies') ? GENRES_MOVIE : GENRES_TV;
+      genreSelect.innerHTML = '<option value="">Todos los géneros</option>' + Object.entries(genres).map(([id, name]) => `<option value="${id}"${id === filterGenre ? ' selected' : ''}>${name}</option>`).join('');
+      sortSelect.value = filterSort;
+      yearInput.value = filterYear;
+
+      document.getElementById('filter-apply').addEventListener('click', () => {
+        const p = new URLSearchParams({ type: currentType });
+        if (genreSelect.value) p.set('genre', genreSelect.value);
+        if (sortSelect.value !== 'popularity.desc') p.set('sort', sortSelect.value);
+        if (yearInput.value) p.set('year', yearInput.value);
+        window.location.href = `catalogo.html?${p}`;
+      });
+    }
 
     if (titleEl) {
       if (searchQuery) {
@@ -158,7 +188,7 @@ const CatalogApp = (() => {
             card.addEventListener('click', () => {
               const id = card.dataset.id;
               const cType = card.dataset.type;
-              window.location.href = `ver.html?type=${cType}&id=${id}`;
+              window.location.href = `detalle.html?type=${cType}&id=${id}`;
             });
           });
 
@@ -171,6 +201,32 @@ const CatalogApp = (() => {
       } else {
         // --- LÓGICA DE CATÁLOGO NORMAL ---
         let dataResponse;
+
+        if (useDiscover) {
+          // Use TMDB discover with filters
+          const tmdbType = (currentType === 'series' || currentType === 'anime') ? 'tv' : 'movie';
+          const params = { type: tmdbType, page: currentPage, sort: filterSort };
+          if (filterGenre) params.genre = filterGenre;
+          if (filterYear) params.year = filterYear;
+          if (currentType === 'anime') params.type = 'anime';
+          dataResponse = await NeonAPI.discoverTMDB(params);
+
+          if (dataResponse?.results?.length) {
+            totalPages = Math.min(dataResponse.total_pages || 1, 500);
+            const items = dataResponse.results;
+            const cardType = currentType === 'movies' ? 'movie' : currentType;
+            gridEl.innerHTML = items.map(item => createCard(item, cardType)).join('');
+            gridEl.querySelectorAll('.card').forEach(card => {
+              card.addEventListener('click', () => {
+                window.location.href = `detalle.html?type=${card.dataset.type}&id=${card.dataset.id}`;
+              });
+            });
+            if (typeof NeonFX !== 'undefined') NeonFX.initScrollReveal();
+          } else {
+            gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados para estos filtros.</div>';
+            totalPages = 1;
+          }
+        } else {
         if (currentType === 'series') {
           dataResponse = await NeonAPI.getListingSeries(currentPage);
         } else if (currentType === 'anime') {
@@ -189,7 +245,7 @@ const CatalogApp = (() => {
             card.addEventListener('click', () => {
               const id = card.dataset.id;
               const cType = card.dataset.type;
-              window.location.href = `ver.html?type=${cType}&id=${id}`;
+              window.location.href = `detalle.html?type=${cType}&id=${id}`;
             });
           });
 
@@ -200,6 +256,7 @@ const CatalogApp = (() => {
           gridEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 4rem;">No hay resultados.</div>';
           totalPages = 1;
         }
+        } // close useDiscover else
       }
 
       // Update Pagination UI
@@ -208,19 +265,17 @@ const CatalogApp = (() => {
       btnNext.disabled = currentPage >= totalPages;
 
       // Handle Pagination Clicks
-      btnPrev.onclick = () => {
-        if (currentPage > 1) {
-          const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage - 1}` : `type=${currentType}&page=${currentPage - 1}`;
-          window.location.href = `catalogo.html?${params}`;
-        }
+      const buildPageUrl = (pg) => {
+        const p = new URLSearchParams({ type: currentType, page: pg });
+        if (searchQuery) { p.delete('type'); p.set('q', searchQuery); }
+        if (filterGenre) p.set('genre', filterGenre);
+        if (filterSort !== 'popularity.desc') p.set('sort', filterSort);
+        if (filterYear) p.set('year', filterYear);
+        return `catalogo.html?${p}`;
       };
 
-      btnNext.onclick = () => {
-        if (currentPage < totalPages) {
-          const params = searchQuery ? `q=${encodeURIComponent(searchQuery)}&page=${currentPage + 1}` : `type=${currentType}&page=${currentPage + 1}`;
-          window.location.href = `catalogo.html?${params}`;
-        }
-      };
+      btnPrev.onclick = () => { if (currentPage > 1) window.location.href = buildPageUrl(currentPage - 1); };
+      btnNext.onclick = () => { if (currentPage < totalPages) window.location.href = buildPageUrl(currentPage + 1); };
 
     } catch (err) {
       console.error('[NeonLatino] Catalog Error:', err);

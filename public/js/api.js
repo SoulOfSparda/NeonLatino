@@ -31,6 +31,7 @@ const NeonAPI = (() => {
     getTMDBTrending: () => fetchJSON('/api/tmdb/trending'),
     getTMDBDetails: (type, id) => fetchJSON(`/api/tmdb/details?type=${type}&id=${id}`),
     searchTMDB: (query, page = 1) => fetchJSON(`/api/tmdb/search?q=${encodeURIComponent(query)}&page=${page}`),
+    discoverTMDB: (params) => fetchJSON(`/api/tmdb/discover?${new URLSearchParams(params)}`),
 
     // Vimeus embed URL builder (view_key is public)
     getEmbedURL(type, tmdbId, season, episode) {
