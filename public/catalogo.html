@@ -50,6 +50,10 @@
       text-shadow: 0 0 10px rgba(var(--neon-cyan-rgb), 0.4);
     }
 
+    .catalog-filters{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem;align-items:center}
+    .catalog-filters select,.catalog-filters input{font-family:var(--font-mono);font-size:.8rem;padding:.5rem .75rem;background:var(--bg-void);color:var(--text-primary);border:1px solid rgba(var(--neon-cyan-rgb),.3);outline:none;min-height:38px}
+    .catalog-filters select:focus,.catalog-filters input:focus{border-color:var(--neon-cyan);box-shadow:0 0 8px rgba(var(--neon-cyan-rgb),.2)}
+
     .catalog-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -122,6 +126,18 @@
   <div class="catalog-container reveal">
     <div class="catalog-header">
       <h1 class="catalog-title" id="catalog-title">Catálogo</h1>
+    </div>
+
+    <div class="catalog-filters" id="catalog-filters" style="display:none">
+      <select id="filter-genre"><option value="">Todos los géneros</option></select>
+      <select id="filter-sort">
+        <option value="popularity.desc">Más populares</option>
+        <option value="vote_average.desc">Mejor valorados</option>
+        <option value="primary_release_date.desc">Más recientes</option>
+        <option value="original_title.asc">A-Z</option>
+      </select>
+      <input type="number" id="filter-year" placeholder="Año" min="1950" max="2026" style="width:80px">
+      <button class="btn btn--ghost" id="filter-apply" style="min-height:38px;padding:.4rem 1rem;font-size:.75rem">FILTRAR</button>
     </div>
     
     <div class="catalog-grid reveal reveal--stagger" id="catalog-grid">

@@ -75,7 +75,7 @@ const NeonApp = (() => {
       card.addEventListener('click', () => {
         const id = card.dataset.id;
         const cType = card.dataset.type;
-        window.location.href = `ver.html?type=${cType}&id=${id}`;
+        window.location.href = `detalle.html?type=${cType}&id=${id}`;
       });
     });
 
@@ -126,7 +126,7 @@ const NeonApp = (() => {
           <p class="hero__synopsis">${overview.length > 250 ? overview.substring(0, 247) + '...' : overview}</p>
           <div class="hero__actions">
             <button class="btn btn--primary" onclick="window.location.href='ver.html?type=${type}&id=${item.id}'">▶ REPRODUCIR</button>
-            <button class="btn btn--ghost" onclick="window.location.href='ver.html?type=${type}&id=${item.id}'">+ INFO</button>
+            <button class="btn btn--ghost" onclick="window.location.href='detalle.html?type=${type}&id=${item.id}'">+ INFO</button>
           </div>
         </div>
       `;
@@ -216,6 +216,63 @@ const NeonApp = (() => {
 
   /* --- Initialize App --- */
   function init() {
+    // Render favorites
+    if (typeof Favorites !== 'undefined') {
+      const favs = Favorites.getAll();
+      const favSection = document.getElementById('favorites-section');
+      const favRow = document.getElementById('favorites-row');
+      if (favs.length && favSection && favRow) {
+        favSection.style.display = '';
+        favRow.innerHTML = favs.map(item => {
+          const poster = item.poster ? `https://image.tmdb.org/t/p/w500${item.poster}` : '';
+          return `<div class="card" data-id="${item.id}" data-type="${item.type}">
+            <div class="card__poster">
+              ${poster ? `<img src="${poster}" alt="${item.title}" loading="lazy">` : ''}
+              <div class="card__poster-gradient" style="${poster ? 'display:none' : 'display:flex'}">${item.title}</div>
+            </div>
+            <div class="card__accent"></div>
+            <div class="card__info"><h3 class="card__title">${item.title}</h3></div>
+          </div>`;
+        }).join('');
+        favRow.querySelectorAll('.card').forEach(card => {
+          card.addEventListener('click', () => {
+            window.location.href = `detalle.html?type=${card.dataset.type}&id=${card.dataset.id}`;
+          });
+        });
+      }
+    }
+
+    // Render continue watching
+    if (typeof WatchHistory !== 'undefined') {
+      const history = WatchHistory.getAll();
+      const section = document.getElementById('continue-watching');
+      const row = document.getElementById('continue-row');
+      if (history.length && section && row) {
+        section.style.display = '';
+        row.innerHTML = history.map(item => {
+          const poster = item.poster ? `https://image.tmdb.org/t/p/w500${item.poster}` : '';
+          const badge = item.season ? `T${item.season} · Ep ${item.episode}` : '';
+          return `<div class="card" data-id="${item.id}" data-type="${item.type}">
+            <div class="card__poster">
+              ${poster ? `<img src="${poster}" alt="${item.title}" loading="lazy">` : ''}
+              <div class="card__poster-gradient" style="${poster ? 'display:none' : 'display:flex'}">${item.title}</div>
+              ${badge ? `<span class="card__rating" style="background:rgba(var(--neon-purple-rgb),.9)">${badge}</span>` : ''}
+            </div>
+            <div class="card__accent"></div>
+            <div class="card__info"><h3 class="card__title">${item.title}</h3></div>
+          </div>`;
+        }).join('');
+        row.querySelectorAll('.card').forEach(card => {
+          card.addEventListener('click', () => {
+            const h = history.find(i => i.id === card.dataset.id);
+            let url = `ver.html?type=${card.dataset.type}&id=${card.dataset.id}`;
+            if (h?.season) url += `&se=${h.season}&ep=${h.episode}`;
+            window.location.href = url;
+          });
+        });
+      }
+    }
+
     loadData();
 
     console.log('%c⚡ NEONLATINO', 'color: #00f0ff; font-size: 20px; font-weight: bold; text-shadow: 0 0 10px #00f0ff;');
