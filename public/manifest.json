@@ -1,8 +1,10 @@
 {
-  "name": "NeonLatino",
+  "id": "/",
+  "name": "NeonLatino — Streaming",
   "short_name": "NeonLatino",
   "description": "Streaming de Películas, Series y Anime",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#06060c",
   "theme_color": "#06060c",
